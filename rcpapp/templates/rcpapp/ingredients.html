@@ -1,0 +1,203 @@
+{% extends 'rcpapp/layout.html' %}
+{% load widget_tweaks %}
+
+
+{% block css %}
+{% endblock %}
+
+{% block top_buttons %}
+<div class="d-flex flex-row justify-content-end flex-wrap gap-3">
+	<form id="filter-form" 
+        autocomplete="off"
+        hx-get="{% url 'ingredients' %}"
+		hx-trigger="input from:[name='search'] delay:500ms, input from:[form='filter-form']"
+		hx-target="#table-holder" 
+        hx-replace-url="true"
+        >
+        <div class="d-flex justify-content-end flex-wrap gap-3">
+            <div class="shadow-sm input-icon">
+                <span class="input-icon-addon">
+                    <i class="ti ti-search ti-24"></i>
+                </span>
+                <input type="text" name="search" value="{{request.GET.search}}" class="form-control" placeholder="Search…" autocomplete="off">
+            </div>
+        </div>
+	</form>
+    <a 
+        hx-get="{% url 'render_add_ingredient_form' %}" 
+        hx-target="#offcanvas"
+        class="btn btn-primary">
+        <i class="ti ti-plus text-white"></i>
+        Add ingredient
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div 
+    id="table-holder"
+    hx-get="{% url 'ingredients' %}"
+    hx-trigger="refresh.ingredients from:body"
+    hx-include="#page-input, #filter-form" 
+>
+    {% partialdef ingredients_table inline=True %}
+    {% url 'ingredients' as render_url %}
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-vcenter table-hover card-table table-striped table-sm">
+                <thead id="table-head">
+                    <input type="hidden" name="order_by" value="{{order_by}}" form="filter-form">
+                    <tr>
+                        <th class="w-1">{% include 'rcpapp/components/table_column_order_button.html' with col='id' col_name='#' url=render_url %}</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>{% include 'rcpapp/components/table_column_order_button.html' with col='carbohydrates_per_100_gr' col_name='Carbs/100g' url=render_url %}</th>
+                        <th>{% include 'rcpapp/components/table_column_order_button.html' with col='sugars_per_100_gr' col_name='Sugars/100g' url=render_url %}</th>
+                        <th>{% include 'rcpapp/components/table_column_order_button.html' with col='lipids_per_100_gr' col_name='Lipids/100g' url=render_url %}</th>
+                        <th>{% include 'rcpapp/components/table_column_order_button.html' with col='fatty_acids_per_100_gr' col_name='Fatty acids/100g' url=render_url %}</th>
+                        <th>{% include 'rcpapp/components/table_column_order_button.html' with col='proteins_per_100_gr' col_name='Proteins/100g' url=render_url %}</th>
+                        <th>{% include 'rcpapp/components/table_column_order_button.html' with col='fiber_per_100_gr' col_name='Fiber/100g' url=render_url %}</th>
+                        <th>{% include 'rcpapp/components/table_column_order_button.html' with col='salt_per_100_gr' col_name='Salt/100g' url=render_url %}</th>
+                        <th class="w-1"></th>
+                        <th class="w-1"></th>
+                    </tr>
+                </thead>
+                <tbody class="table-tbody">
+                    {% for ingredient in page_obj.object_list %}
+                    <tr>
+                        <td>{{ingredient.id}}</td>
+                        <td>{{ingredient.name}}</td>
+                        <td>{{ingredient.description|default:''}}</td>
+                        <td>{{ingredient.carbohydrates_per_100_gr}}</td>
+                        <td>{{ingredient.sugars_per_100_gr}}</td>
+                        <td>{{ingredient.lipids_per_100_gr}}</td>
+                        <td>{{ingredient.fatty_acids_per_100_gr}}</td>
+                        <td>{{ingredient.proteins_per_100_gr}}</td>
+                        <td>{{ingredient.fiber_per_100_gr}}</td>
+                        <td>{{ingredient.salt_per_100_gr}}</td>
+                        <td>
+                            <a hx-get="{% url 'render_edit_ingredient_form' pk=ingredient.id %}" hx-target="#offcanvas">Edit</a>
+                        </td>
+                        <td>
+                            <a hx-delete="{% url 'delete_ingredient' pk=ingredient.pk %}" confirm="Are you sure you want to delete {{ingredient}}?">
+                                <i class="ti ti-trash text-danger"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="20" class="text-center text-muted">
+                            No records found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'rcpapp/components/pagination.html' with replace_url='true' %}
+    </div>
+    {% endpartialdef %}
+</div>
+{% endblock %}
+
+{% block scripts %}{% endblock %}
+
+
+{% partialdef add_ingredient_form %}
+<div class="offcanvas-header">
+    <h2 class="offcanvas-title">Add ingredient</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+</div>
+<div class="offcanvas-body">
+    <form
+        hx-post="{% url 'add_ingredient' %}"
+        hx-target="closest .offcanvas"
+        autocomplete="off">
+        <div class="row">
+            <div class="col-12">
+                {{form.name|render}}
+            </div>
+            <div class="col-12">
+                {{form.description|render}}
+            </div>
+            <div class="col-12">
+                {{form.carbohydrates_per_100_gr|render}}
+            </div>
+            <div class="col-12">
+                {{form.sugars_per_100_gr|render}}
+            </div>
+            <div class="col-12">
+                {{form.lipids_per_100_gr|render}}
+            </div>
+            <div class="col-12">
+                {{form.fatty_acids_per_100_gr|render}}
+            </div>
+            <div class="col-12">
+                {{form.proteins_per_100_gr|render}}
+            </div>
+            <div class="col-12">
+                {{form.fiber_per_100_gr|render}}
+            </div>
+            <div class="col-12">
+                {{form.salt_per_100_gr|render}}
+            </div>
+
+        </div>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="ti ti-device-floppy fw-bold"></i> Save
+            </button>
+        </div>
+    </form>
+</div>
+{% endpartialdef %}
+
+
+{% partialdef edit_ingredient_form %}
+<div class="offcanvas-header">
+    <h2 class="offcanvas-title">Edit {{ingredient}}</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+</div>
+<div class="offcanvas-body">
+    <form
+        hx-post="{% url 'edit_ingredient' pk=ingredient.id %}"
+        hx-target="closest .offcanvas"
+        autocomplete="off">
+        <div class="row">
+            <div class="col-12">
+                {{form.name|render}}
+            </div>
+            <div class="col-12">
+                {{form.description|render}}
+            </div>
+            <div class="col-12">
+                {{form.carbohydrates_per_100_gr|render}}
+            </div>
+            <div class="col-12">
+                {{form.sugars_per_100_gr|render}}
+            </div>
+            <div class="col-12">
+                {{form.lipids_per_100_gr|render}}
+            </div>
+            <div class="col-12">
+                {{form.fatty_acids_per_100_gr|render}}
+            </div>
+            <div class="col-12">
+                {{form.proteins_per_100_gr|render}}
+            </div>
+            <div class="col-12">
+                {{form.fiber_per_100_gr|render}}
+            </div>
+            <div class="col-12">
+                {{form.salt_per_100_gr|render}}
+            </div>
+
+        </div>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="ti ti-device-floppy fw-bold"></i> Save
+            </button>
+        </div>
+    </form>
+</div>
+{% endpartialdef %}

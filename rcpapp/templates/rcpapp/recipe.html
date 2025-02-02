@@ -1,0 +1,251 @@
+{% extends "rcpapp/layout.html" %}
+
+{% block css %}{% endblock %}
+{% block before_title %}
+<div class="d-flex align-items-center">
+    <a class="btn btn-icon btn-primary me-2 backbutton" href="{% url 'recipes' %}">
+        <i class="ti ti-arrow-left text-white m-0"></i>
+    </a>
+</div>
+{% endblock %}
+
+{% block top_buttons %}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12 col-lg-6">
+        <div id="recipe-details" hx-get="{% url 'recipe' pk=recipe.id %}?part=details" hx-trigger="refresh.recipe.details from:body">
+            {% partialdef details inline=True %}
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="card-title">
+                        Details
+                    </div>
+                    <div class="card-actions">
+                        <div class="d-flex flex-row flex-wrap justify-content-end gap-3" style="flex-grow: 0;">
+                            <a hx-get="{% url 'render_edit_recipe_form' pk=recipe.id %}" hx-target="#offcanvas">
+                                <i class="ti ti-edit"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="datagrid">
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">Name</div>
+                            <div class="datagrid-content">
+                                {{recipe.name}}
+                            </div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">Description</div>
+                            <div class="datagrid-content">
+                                {{recipe.description|default:'-'}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endpartialdef %}
+        </div>
+        
+    </div>
+    <div class="col-12 col-lg-6 d-flex align-items-center">
+        <div id="nutrition" class="w-100" hx-get="{% url 'recipe' pk=recipe.id %}?part=nutrition" hx-trigger="refresh.recipe.nutrition from:body">
+            {% partialdef nutrition inline=True %}
+            <div class="datagrid text-center my-4" style="--tblr-datagrid-item-width: 0rem;">
+                <div class="datagrid-item">
+                    <div class="datagrid-title">
+                        <span class="badge bg-primary-lt text-white">Calories</span>
+                    </div>
+                    <div class="datagrid-content">{{recipe.calories}}</div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">
+                        <span class="badge bg-primary-lt text-white">Carbohydrates</span>
+                    </div>
+                    <div class="datagrid-content">{{recipe.carbohydrates}}</div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">
+                        <span class="badge bg-primary-lt text-white">Lipids</span>
+                    </div>
+                    <div class="datagrid-content">{{recipe.lipids}}</div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">
+                        <span class="badge bg-primary-lt text-white">Proteins</span>
+                    </div>
+                    <div class="datagrid-content">{{recipe.proteins}}</div>
+                </div>
+            </div>
+            {% endpartialdef %}
+        </div>
+    </div>
+</div>
+
+
+<div id="recipe-ingredients" class="mt-lg-5" hx-get="{% url 'recipe' pk=recipe.id %}?part=ingredients" hx-trigger="refresh.recipe.ingredients from:body">
+    {% partialdef ingredients inline=True %}
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                Ingredients
+            </h3>
+            <div class="card-actions btn-actions">
+                <div class="d-flex flex-row flex-wrap justify-content-end gap-3" style="flex-grow: 0;">
+                    <a hx-get="{% url 'render_add_recipe_ingredient_form' pk=recipe.id %}" hx-target="#offcanvas">
+                        <i class="ti ti-plus"></i> Add ingredient
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-vcenter table-hover card-table table-striped">
+                <thead id="table_head">
+                    <tr>
+                        <th>Ingredient</th>
+                        <th>Grams</th>
+                        <th>Carbs</th>
+                        <th>Sugars</th>
+                        <th>Lipids</th>
+                        <th>Fatty acids</th>
+                        <th>Proteins</th>
+                        <th>Fiber</th>
+                        <th>Salt</th>
+                        <th>Calories</th>
+                        <th class="w-1"></th>
+                        <th class="w-1"></th>
+
+                    </tr>
+                </thead>
+                <tbody class="table-tbody">
+                    {% for recipe_ingredient in recipe.ingredients.all %}
+                    <tr>
+                        <td>{{recipe_ingredient.ingredient}}</td>
+                        <td>{{recipe_ingredient.grams}}</td>
+                        <td>{{recipe_ingredient.carbohydrates}}</td>
+                        <td>{{recipe_ingredient.sugars}}</td>
+                        <td>{{recipe_ingredient.lipids}}</td>
+                        <td>{{recipe_ingredient.fatty_acids}}</td>
+                        <td>{{recipe_ingredient.proteins}}</td>
+                        <td>{{recipe_ingredient.fiber}}</td>
+                        <td>{{recipe_ingredient.salt}}</td>
+                        <td>{{recipe_ingredient.calories}}</td>
+                        <td>
+                            <a hx-get="{% url 'render_edit_recipe_ingredient_form' pk=recipe_ingredient.id %}" hx-target="#offcanvas">
+                                Edit
+                            </a>
+                        </td>
+                        <td>
+                            <a hx-delete="{% url 'delete_recipe_ingredient' pk=recipe_ingredient.id %}" confirm="Do you want to remove {{recipe_ingredient.ingredient}} from the recipe?">
+                                <i class="ti ti-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="20" class="text-center text-muted">No records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endpartialdef %}
+</div>
+{% endblock %}
+
+{% block scripts %}{% endblock %}
+
+
+
+{% partialdef edit_recipe_form %}
+<div class="offcanvas-header">
+    <h2 class="offcanvas-title">Edit {{recipe}}</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+</div>
+<div class="offcanvas-body">
+    <form
+        hx-post="{% url 'edit_recipe' pk=recipe.id %}"
+        hx-target="closest .offcanvas"
+        autocomplete="off">
+        <div class="row">
+            <div class="col-12">
+                {{form.name|render}}
+            </div>
+            <div class="col-12">
+                {{form.description|render}}
+            </div>
+        </div>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="ti ti-device-floppy fw-bold"></i> Save
+            </button>
+        </div>
+    </form>
+</div>
+{% endpartialdef %}
+
+{% partialdef add_recipe_ingredient_form %}
+<div class="offcanvas-header">
+    <h2 class="offcanvas-title">Add ingredient in recipe</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+</div>
+<div class="offcanvas-body">
+    <form
+        hx-post="{% url 'add_recipe_ingredient' pk=recipe.id %}"
+        hx-target="closest .offcanvas"
+        autocomplete="off">
+        {{form.recipe}}
+        <div class="row">
+            <div class="col-12">
+                {% url 'render_add_ingredient_form' as action_url %}
+                {% include 'rcpapp/fields/select_input_group.html' with field=form.ingredient action_url=action_url %}
+            </div>
+            <div class="col-12">
+                {{form.grams|render}}
+            </div>
+        </div>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="ti ti-device-floppy fw-bold"></i> Save
+            </button>
+        </div>
+    </form>
+</div>
+{% endpartialdef %}
+
+{% partialdef edit_recipe_ingredient_form %}
+<div class="offcanvas-header">
+    <h2 class="offcanvas-title">Edit {{recipe_ingredient}}</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+</div>
+<div class="offcanvas-body">
+    <form
+        hx-post="{% url 'edit_recipe_ingredient' pk=recipe_ingredient.id %}"
+        hx-target="closest .offcanvas"
+        autocomplete="off">
+        {{form.recipe}}
+        <div class="row">
+            <div class="col-12">
+                {% url 'render_add_ingredient_form' as action_url %}
+                {% include 'rcpapp/fields/select_input_group.html' with field=form.ingredient action_url=action_url %}
+            </div>
+            <div class="col-12">
+                {{form.grams|render}}
+            </div>
+        </div>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="ti ti-device-floppy fw-bold"></i> Save
+            </button>
+        </div>
+    </form>
+</div>
+{% endpartialdef %}
+

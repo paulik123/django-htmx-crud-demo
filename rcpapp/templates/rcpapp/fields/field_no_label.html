@@ -1,0 +1,25 @@
+{% load widget_tweaks %}
+<div class="my-1">
+    {% if field.widget_type == 'checkbox' %}
+        <label class="form-check form-switch {% if field.field.required %}required{% endif %}">
+            {{field|add_error_class:"is-invalid"|add_class:"form-check-input"}}
+            <span class="form-check-label">
+                {{field.label}}
+            </span>
+            <span class="form-check-description">
+                {{field.help_text}}
+            </span>
+        </label>
+    {% elif field.widget_type == 'select' %}
+        {{field|add_error_class:"is-invalid"|add_class:"form-select"}}
+    {% else %}
+        {{field|add_error_class:"is-invalid"|add_class:"form-control"}}
+    {% endif %}
+    {% if field.errors %}
+        <div class="invalid-feedback">
+            {% for error in field.errors %}
+                {{error}}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

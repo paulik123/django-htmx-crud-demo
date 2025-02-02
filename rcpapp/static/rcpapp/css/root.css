@@ -1,0 +1,10 @@
+:root {
+    --tblr-primary: #1e69a6 !important;
+    --tblr-primary-rgb: 30,105,166;
+    --tblr-link-color-rgb: #1e69a6;
+    --tblr-link-color-rgb: 30,105,166;
+    --tblr-gray-50: #f6f8fb;
+    --tblr-gray-50-rgb: rgb(246,248,251);
+    --tblr-disabled-color: var(--tblr-gray-400);
+    --tblr-active-bg: var(--tblr-gray-100);
+}

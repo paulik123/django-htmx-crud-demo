@@ -1,0 +1,58 @@
+<div class="card-footer d-flex align-items-center flex-wrap">
+    <p class="ms-1 my-1 m-0 text-muted">
+        Showing <b>{{page_obj.start_index|default:'0'}}</b> 
+        to <b>{{page_obj.end_index|default:'0'}}</b> 
+        of <b>{{page_obj.paginator.count|default:'0'}}</b>
+        entries
+    </p>
+    <ul class="pagination m-0 ms-auto my-1">
+        <input type="hidden" name="page" value="{{page_obj.number}}" id="{{page_input_id|default:'page-input'}}">
+        <li class="page-item {% if not page_obj.has_previous %} disabled {% endif %}">
+            <a class="page-link text-nowrap" 
+                {% if page_obj.has_previous %} 
+                    hx-get="{{render_url}}" 
+                    hx-target="{{target|default:'#table-holder'}}" 
+                    hx-include="{{include|default:'#filter-form'}}"
+                    hx-replace-url="{{replace_url|default:'false'}}"
+                    hx-vals='{"page": {{page_obj.previous_page_number}}}'
+                {% endif%}>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><polyline points="15 6 9 12 15 18" /></svg>
+                Prev
+            </a>
+        </li>
+        {% for page_number in page_range %}
+            {% if page_number == page_obj.paginator.ELLIPSIS %}
+                <li class="page-item disabled d-none d-md-inline">
+                    <a class="page-link">
+                        {{page_obj.paginator.ELLIPSIS}}
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item d-none d-md-inline {% if page_number == page_obj.number %}active{% endif %}">
+                    <a class="page-link" 
+                        hx-get="{{render_url}}" 
+                        hx-target="{{target|default:'#table-holder'}}" 
+                        hx-include="{{include|default:'#filter-form'}}"
+                        hx-replace-url="{{replace_url|default:'false'}}"
+                        hx-vals='{"page": {{page_number}}}'
+                        >
+                        {{page_number}}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        <li class="page-item  {% if not page_obj.has_next %}disabled{% endif%}">
+            <a class="page-link text-nowrap" 
+                {% if page_obj.has_next %}
+                    hx-get="{{render_url}}"
+                    hx-target="{{target|default:'#table-holder'}}"
+                    hx-include="{{include|default:'#filter-form'}}"
+                    hx-replace-url="{{replace_url|default:'false'}}"
+                    hx-vals='{"page": {{page_obj.next_page_number}}}'
+                {% endif%}>
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><polyline points="9 6 15 12 9 18" /></svg>
+            </a>
+        </li>
+    </ul>
+</div>

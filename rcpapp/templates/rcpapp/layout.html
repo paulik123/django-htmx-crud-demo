@@ -1,0 +1,241 @@
+{% load static %}
+{% load baseurl %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>{{title}} - Django + HTMX DEMO</title>
+    <link rel="icon" type="image/svg" href="{% static 'rcpapp/img/htmx.png' %}">
+    <link href="{% static 'rcpapp/css/tabler.css' %}" rel="stylesheet" />
+    <link href="{% static 'rcpapp/css/outfit.css' %}" rel="stylesheet" />
+    <link href="{% static 'rcpapp/css/tabler-vendors.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'rcpapp/iconfont/tabler-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'rcpapp/css/sweetalert2.css' %}" rel="stylesheet">
+    <link href="{% static 'rcpapp/css/root.css' %}" rel="stylesheet">
+    <link href="{% static 'rcpapp/css/style.css' %}" rel="stylesheet">
+    {% block css %}
+    {% endblock %}
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-indicator="#spinner" >
+    <div class="page">
+        <aside class="navbar navbar-vertical navbar-expand-lg">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <h1 class="navbar-brand navbar-brand-autodark">
+                    <a href="/" class="text-center">
+                        <img src="{% static 'rcpapp/img/htmx.png' %}" alt="2na.dev" class="navbar-brand-image">
+                    </a>
+                </h1>
+
+
+                <div class="collapse navbar-collapse" id="sidebar-menu">
+                    <ul class="navbar-nav">
+                        <li class="nav-item nav-item-title mt-0">
+                            <div class="nav-link pt-0">
+                                <div class="menu-title mt-0">Home</div>
+                            </div>
+                        </li>
+                        <li class="nav-item {% if_active '' %} {% if_active 'recipe' %}">
+                            <a class="nav-link" href="/">
+                                <span class="nav-link-icon">
+                                    <i class="ti ti-chef-hat"></i>
+                                </span>
+                                <span class="nav-link-title">
+                                    Recipes
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item {% if_active 'ingredients' %}">
+                            <a class="nav-link" href="{% url 'ingredients' %}">
+                                <span class="nav-link-icon">
+                                    <i class="ti ti-cheese"></i>
+                                </span>
+                                <span class="nav-link-title">
+                                    Ingredients
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://github.com/paulik123/django-htmx-crud-demo" target="_blank">
+                                <span class="nav-link-icon">
+                                    <i class="ti ti-brand-github"></i>
+                                </span>
+                                <span class="nav-link-title">
+                                    View on GitHub
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+        <div class="page-wrapper">
+            <div class="container-fluid">
+                <div class="page-header d-print-none">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                        <div class="d-flex">
+                            {% block before_title %}{% endblock %}
+                            <div class="d-flex flex-column  justify-content-center">
+                                <div class="page-pretitle">
+                                    {{module}}
+                                </div>
+                                <div class="d-flex justify-content-start">
+                                    <h2 class="page-title">
+                                        {{title}}
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+                        {% block top_buttons %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+            <div class="page-body">
+                <div class="container-fluid">
+                    {% block content %}{% endblock %}
+
+                    <div class="d-flex justify-content-center">
+                        <div class="text-muted">
+                            * All numbers are not accurate at all, just for de demonstrations purposes
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <i class="ti ti-loader-2" id="spinner"></i>
+
+    <div class="offcanvas offcanvas-end offcanvas-expand" data-bs-backdrop="static" tabindex="-1" id="offcanvas"></div>
+    <div class="offcanvas offcanvas-end offcanvas-expand" data-bs-backdrop="static" tabindex="-1" id="offcanvas2"></div>
+
+    <script src="{% static 'rcpapp/js/tabler.js' %}"></script>
+    <script src="{% static 'rcpapp/js/htmx.js' %}"></script>
+    <script src="{% static 'rcpapp/js/multi-swap.js' %}"></script>
+    <script src="{% static 'rcpapp/js/jquery.min.js' %}"></script>
+    <script src="{% static 'rcpapp/js/sweetalert2.js' %}"></script>
+    <script src="{% static 'rcpapp/js/tomselect.js' %}"></script>
+    <script src="{% static 'rcpapp/js/tomselect-init.js' %}"></script>
+
+    <script type="text/javascript">
+        // INIT SUCCESS/ERROR TOASTS
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-start',
+            iconColor: 'white',
+            customClass: {
+                popup: 'colored-toast'
+            },
+            showConfirmButton: false,
+            timer: 1000,
+            timerProgressBar: true,
+            padding: '5 px'
+        });
+
+        document.body.addEventListener('htmx:targetError', async (event) => {
+            const error = event.detail.target;
+            if (error) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: `TargetError:\n${error}`
+                })
+            }
+        })
+
+        document.body.addEventListener('htmx:afterRequest', async (event) => {
+            const message = event.detail.xhr.getResponseHeader('X-Success');
+            if (message) {
+                return Toast.fire({
+                    icon: 'success',
+                    text: message,
+                })
+            }
+        });
+        document.body.addEventListener('htmx:responseError', async (event) => {
+            await Toast.fire({
+                icon: 'warning',
+                html: event.detail.xhr.responseText,
+                timer: 3500,
+            })
+        });
+
+        messages = `{% for message in messages %}{{message}};;;{% endfor %}`;
+        messages.split(';;;').forEach(message => {
+            if(message.length > 0) {
+                Toast.fire({
+                    icon: 'success',
+                    text: message,
+                })
+            }
+        })
+
+
+
+        // BETTER CONFIRM DIALOG
+        document.body.addEventListener('htmx:confirm', async (event) => {
+            if (!event.target.hasAttribute('confirm')) return;
+            event.preventDefault();
+            Swal.fire({
+                html: event.target.getAttribute('confirm'),
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'No',
+                confirmButtonText: 'Yes!'
+            }).then(result => {
+                if (result.isConfirmed) event.detail.issueRequest()
+            })
+        });
+
+
+        // OPEN MULTIPLE OFFCANVASES TRICK
+        document.body.addEventListener('htmx:beforeSwap', async (event) => {
+            if (event.detail.requestConfig.verb != 'get') return;
+            if (event.target.classList.contains("offcanvas-expand")) {
+                if (!document.getElementById('offcanvas').classList.contains('show')) {
+                    event.detail.target = document.getElementById("offcanvas")
+                    return
+                }
+                if (!document.getElementById('offcanvas2').classList.contains('show')) {
+                    event.detail.target = document.getElementById("offcanvas2")
+                }
+            }
+        });
+        document.body.addEventListener('open.offcanvas', async (event) => {
+            if (!document.getElementById('offcanvas').classList.contains('show')) {
+                let offcanvas1 = bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('offcanvas'))
+                offcanvas1.show()
+                document.body.style.removeProperty('overflow')
+                return
+            }
+            if (!document.getElementById('offcanvas2').classList.contains('show')) {
+                let offcanvas2 = bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('offcanvas2'))
+                offcanvas2._backdrop._config.className = "offcanvas-backdrop opacity-0"
+                offcanvas2.show()
+                document.body.style.removeProperty('overflow')
+                return
+            }
+        })
+        document.body.addEventListener('close.offcanvas', async (event) => {
+            if (document.getElementById('offcanvas2').classList.contains('show')) {
+                let offcanvas2 = bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('offcanvas2'))
+                offcanvas2.hide()
+                return;
+            }
+            if (document.getElementById('offcanvas').classList.contains('show')) {
+                let offcanvas1 = bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('offcanvas'))
+                offcanvas1.hide()
+                return;
+            }
+        })
+    </script>    
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

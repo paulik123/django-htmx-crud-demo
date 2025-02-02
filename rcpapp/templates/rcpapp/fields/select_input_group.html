@@ -1,0 +1,21 @@
+{% load widget_tweaks %}
+<div class="my-1"  id="{{field.auto_id}}_holder">
+    <label class="form-label {% if field.field.required %}required{% endif %}">{{field.label}} </label>
+    <div class="input-group input-group" style="box-shadow: none;">
+        {{field|add_error_class:"is-invalid"|add_class:"form-select border rounded-start"}}
+            <a class="btn btn-sm btn-primary border rounded-end"
+                hx-get="{{action_url}}{{query}}" 
+                hx-target="#offcanvas2"
+                hx-include="closest form">
+                <i class="ti ti-plus text-white mx-2"></i>
+            </a>
+        </span>
+        {% if field.errors %}
+            <div class="invalid-feedback">
+                {% for error in field.errors %}
+                    {{error}}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
