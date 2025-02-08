@@ -1,1 +1,1 @@
-LIVE DEMO AT: https://django-htmx.2na.dev/
+
